@@ -1,0 +1,148 @@
+module control(
+    input      [6:0] opcode,
+    input            funct3_0,
+    output reg       alusrc,
+    output reg       memtoreg,
+    output reg       regwrite,
+    output reg       memread,
+    output reg       memwrite,
+    output reg       bne,
+    output reg       beq,
+    output reg       jal,
+    output reg       jalr,
+    output reg [1:0] aluop
+    // output reg       if_flush  
+);
+    
+always @(*) begin
+    if(opcode[1:0] == 2'b11) begin
+    case(opcode[6:2])
+    5'b01100:begin
+        // R-type
+        alusrc = 0;
+        memtoreg = 0;
+        regwrite = 1;
+        memread = 0;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b10;
+        // if_flush = 0;
+    end
+    5'b00100:begin
+        // I-type
+        alusrc = 1;
+        memtoreg = 0;
+        regwrite = 1;
+        memread = 0;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b10;
+        // if_flush = 0;
+    end
+    5'b00000:begin
+        // lw
+        alusrc = 1;
+        memtoreg = 1;
+        regwrite = 1;
+        memread = 1;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b00;
+        // if_flush = 0;
+    end
+    5'b01000:begin
+        // sw
+        alusrc = 1;
+        memtoreg = 0;
+        regwrite = 0;
+        memread = 0;
+        memwrite = 1;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b00;
+        // if_flush = 0;
+    end
+    5'b11000:begin
+        // beq & bne
+        alusrc = 0;
+        memtoreg = 0;
+        regwrite = 0;
+        memread = 0;
+        memwrite = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b01;
+        // if_flush = 1;
+        beq = ~funct3_0;
+        bne = funct3_0;
+    end
+    5'b11011:begin
+        // jal
+        alusrc = 1;
+        memtoreg = 0;
+        regwrite = 1;
+        memread = 0;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 1;
+        jalr = 0;
+        aluop = 2'b00;
+        // if_flush = 1;
+    end
+    5'b11001:begin
+        // jalr
+        alusrc = 1;
+        memtoreg = 0;
+        regwrite = 1;
+        memread = 0;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 1;
+        aluop = 2'b00;
+        // if_flush = 1;
+    end
+    default:begin
+        alusrc = 0;
+        memtoreg = 0;
+        regwrite = 0;
+        memread = 0;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b00;
+        // if_flush = 0;
+    end
+    endcase
+    end else begin
+        alusrc = 0;
+        memtoreg = 0;
+        regwrite = 0;
+        memread = 0;
+        memwrite = 0;
+        bne = 0;
+        beq = 0;
+        jal = 0;
+        jalr = 0;
+        aluop = 2'b00;
+        // if_flush = 0;
+    end  
+end
+endmodule
+
+
